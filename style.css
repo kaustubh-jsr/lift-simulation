@@ -1,0 +1,96 @@
+.hidden {
+  display: none;
+}
+.lift-sim-section {
+  padding-top: 8px;
+  position: relative;
+}
+.floor {
+  height: 10rem;
+  background-color: aliceblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.btns {
+  height: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.btn {
+  display: block;
+  padding: 4px;
+  border-radius: 5px;
+  border: 1px solid gray;
+}
+
+.green-btn {
+  background-color: rgb(0, 255, 0);
+}
+.yellow-btn {
+  background-color: rgb(255, 255, 28);
+}
+
+.floor-line {
+  /* background-color: black; */
+  width: 90%;
+  height: 2px;
+  align-self: flex-end;
+}
+
+.floor-num {
+  margin-right: 2px;
+  font-weight: bolder;
+  font-size: large;
+}
+
+.lift {
+  width: 5rem;
+  height: 9rem;
+  background-color: #fbfbfb;
+  position: absolute;
+  overflow: hidden;
+  border: 2px solid black;
+  border-bottom: 0;
+}
+
+.num1 {
+  left: 8rem;
+}
+
+.num2 {
+  left: 14rem;
+}
+
+.num3 {
+  left: 20rem;
+}
+.door {
+  position: absolute;
+  width: 49%;
+  height: 100%;
+  background-color: #666;
+  transition: transform 2.5s;
+}
+
+.left {
+  left: 0;
+}
+
+.right {
+  right: 0;
+}
+
+/* Door animations */
+.open .left {
+  transform: translateX(-100%);
+}
+
+.open .right {
+  transform: translateX(100%);
+}

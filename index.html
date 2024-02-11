@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lift Simulation</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Lift Simulation for RDS</h1>
+    <section class="form">
+      <input
+        type="number"
+        id="num-of-floors"
+        placeholder="Enter number of floors"
+      />
+      <input
+        type="number"
+        id="num-of-lifts"
+        placeholder="Enter number of lifts"
+      />
+      <button id="simulate">Simulate</button>
+    </section>
+    <main id="lift-sim-section" class="hidden">
+      <section class="">
+        <!-- <div class="floor" id="floor-1">
+          <div class="btns">
+            <button class="btn green-btn">Up</button>
+            <button class="btn yellow-btn">Down</button>
+          </div>
+          <div class="floor-line"></div>
+          <div class="floor-num">4</div>
+        </div>
+        <div class="lift num1">
+          <div class="door left"></div>
+          <div class="door right"></div>
+        </div>
+        <div class="lift num2">
+          <div class="door left"></div>
+          <div class="door right"></div>
+        </div>
+        <div class="lift num3">
+          <div class="door left"></div>
+          <div class="door right"></div>
+        </div> -->
+        <button onclick="openCloseDoor1()">Toggle Doors</button>
+      </section>
+    </main>
+    <script src="index.js"></script>
+  </body>
+</html>

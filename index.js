@@ -3,8 +3,6 @@ const liftInput = document.querySelector("#num-of-lifts");
 const sectionForm = document.querySelector(".form");
 const sectionLiftFloor = document.querySelector("#lift-sim-section");
 const simBtn = document.querySelector("#simulate");
-const lifts = document.querySelector(".lifts");
-const floors = document.querySelector(".floors");
 
 const simulate = () => {
   // get the inputs and create nodes and append to document
@@ -22,18 +20,18 @@ const simulate = () => {
   sectionForm.classList.add("hidden");
   sectionLiftFloor.classList.toggle("hidden");
   simulateFloors(numOfFloors);
-  //   simulateLifts(numOfLifts)
+  simulateLifts(numOfLifts);
 };
 
 simBtn.addEventListener("click", simulate);
 function toggleDoors(lift) {
   lift.classList.toggle("open");
 }
-function openCloseDoor1() {
-  const lift = document.querySelector(".lift");
-  toggleDoors(lift);
-  setTimeout(() => toggleDoors(lift), 2500);
-}
+// function openCloseDoor1() {
+//   const lift = document.querySelector(".lift");
+//   toggleDoors(lift);
+//   setTimeout(() => toggleDoors(lift), 2500);
+// }
 
 function openCloseDoor(lift) {
   toggleDoors(lift);
@@ -81,9 +79,12 @@ class Lift {
 // generate the required floors, and put in
 // the required num of lifts at the ground floor 0
 
+// Global state of the application
+let floors = [];
+let lifts = [];
+
 function simulateFloors(num) {
   let floorNumber = num - 1;
-  const floors = [];
   while (floorNumber >= 0) {
     const hasUp = floorNumber !== num - 1;
     const hasDown = floorNumber !== 0;
@@ -130,4 +131,44 @@ function createFloorElement(number, hasUp, hasDown) {
   element.appendChild(floorNumElement);
   return element;
 }
-function simulateLifts(num) {}
+
+function simulateLifts(num) {
+  let liftNumber = 0;
+  while (liftNumber < num) {
+    const floorNum = floors.length - 1; // by default all new lifts are at 0th
+    let element = createLiftElement(liftNumber);
+    const lift = new Lift(liftNumber, 0, element);
+    lifts.push(lift);
+    floors[floorNum].element.appendChild(element);
+    liftNumber++;
+  }
+}
+
+function createLiftElement(liftNumber) {
+  // Create a new div element
+  const lift = document.createElement("div");
+
+  // Add the 'lift' class to the element
+  lift.classList.add("lift");
+
+  // Add a variable class based on the liftNumber
+  lift.setAttribute("id", `lift-${liftNumber}`);
+
+  // Calculate the left position based on the liftNumber
+  const leftPosition = 8 + 6 * liftNumber;
+
+  // Set the style for the lift to position it
+  lift.style.left = `${leftPosition}rem`;
+
+  //Add doors to the lift
+  const leftDoor = document.createElement("div");
+  const rightDoor = document.createElement("div");
+  leftDoor.classList.add("door");
+  leftDoor.classList.add("left");
+  rightDoor.classList.add("door");
+  rightDoor.classList.add("right");
+  lift.appendChild(leftDoor);
+  lift.appendChild(rightDoor);
+
+  return lift;
+}

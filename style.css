@@ -27,6 +27,7 @@
   padding: 4px;
   border-radius: 5px;
   border: 1px solid gray;
+  cursor: pointer;
 }
 
 .green-btn {
@@ -59,17 +60,6 @@
   border-bottom: 0;
 }
 
-.num1 {
-  left: 8rem;
-}
-
-.num2 {
-  left: 14rem;
-}
-
-.num3 {
-  left: 20rem;
-}
 .door {
   position: absolute;
   width: 49%;

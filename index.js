@@ -46,12 +46,11 @@ class Floor {
   }
 
   callLift() {
-    // if no lift on this floor, call the nearest  free lift,
-    if (this.lifts.length) {
-      this.lifts[0].engage();
-    } else {
+    // Find the nearest idle lift
+    const nearestLift = findNearestIdleLift(this.number);
+    if (nearestLift) {
+      nearestLift.goToFloor(this.number);
     }
-    // else open the first free lift here
   }
 }
 
@@ -65,35 +64,85 @@ class Lift {
   }
 
   engage() {
-    // open and close door wherever the lift is if
-    // it is not travelling
-    if (!this.travelling) {
-      openCloseDoor(this.element);
-    }
+    // Simulate opening and closing doors
+    openCloseDoor(this.element);
   }
 
-  goToFloor(floorNumber) {}
+  goToFloor(floorNumber) {
+    console.log(
+      `Lift ${this.number} is moving to floor ${floorNumber} from floor ${this.atFloor}`
+    );
+    console.log(floors, lifts);
+    this.travelling = true;
+    // remove lift from current floor
+    const currentFloor = floors.find((floor) => floor.number === this.atFloor);
+    currentFloor.lifts = currentFloor.lifts.filter(
+      (lift) => lift.number !== this.number
+    );
+    simulateTravelAnimation(this, floorNumber);
+    const currentFloorIndex = floors.length - 1 - this.atFloor;
+    const targetFloorIndex = floors.length - 1 - floorNumber;
+    const numberOfFloorsToTravel = Math.abs(
+      targetFloorIndex - currentFloorIndex
+    );
+    const travelTime = numberOfFloorsToTravel * 2000; // 2 seconds per floor
+    // time to travel @2sec per floor = abs(finalFloor - currentFloor) * 2
+    setTimeout(() => {
+      // stop the lift after the specified duration and toggle doors
+      setTimeout(() => this.engage(), 40);
+      setTimeout(() => {
+        this.travelling = false;
+      }, 5000);
+      // add lift to the new floor
+      const floorToReach = floors.find((floor) => floor.number === floorNumber);
+      floorToReach.lifts.push(this);
+      console.log(floors, lifts);
+    }, travelTime);
+    this.atFloor = floorNumber;
+  }
 }
 
 // when user clicks simulate
 // generate the required floors, and put in
 // the required num of lifts at the ground floor 0
 
+function simulateTravelAnimation(lift, floorNumber) {
+  const floorHeight = 160;
+  const gapBetweenFloors = 8;
+  const currentFloorIndex = floors.length - 1 - lift.atFloor;
+  const targetFloorIndex = floors.length - 1 - floorNumber;
+  const numberOfFloorsToTravel = Math.abs(targetFloorIndex - currentFloorIndex);
+
+  // Calculate total distance considering height and gap between floors
+  const totalDistance =
+    numberOfFloorsToTravel * (floorHeight + gapBetweenFloors);
+  const direction = targetFloorIndex > currentFloorIndex ? 1 : -1; // -1 for up, 1 for down
+
+  // Calculate total travel time
+  const travelTime = numberOfFloorsToTravel * 2; // 2 seconds per floor
+
+  // Adjust CSS transition duration based on travel time
+  lift.element.style.transition = `transform ${travelTime}s linear`;
+
+  // Apply CSS transformation to simulate lift moving
+  lift.element.style.transform = `translateY(${direction * totalDistance}px)`;
+
+  // After the animation completes, physically move the lift in the DOM
+  setTimeout(() => {
+    lift.element.style.transform = "";
+    lift.element.style.transition = "";
+
+    // Physically move the lift element in the DOM to its new floor
+    const startingFloorElement = floors[currentFloorIndex].element;
+    const destinationFloorElement = floors[targetFloorIndex].element;
+    startingFloorElement.removeChild(lift.element); // Remove from current floor
+    destinationFloorElement.appendChild(lift.element); // Add to destination floor
+  }, travelTime * 1000); // Convert seconds to milliseconds
+}
+
 // Global state of the application
 let floors = [];
 let lifts = [];
-
-function simulateFloors(num) {
-  let floorNumber = num - 1;
-  while (floorNumber >= 0) {
-    const hasUp = floorNumber !== num - 1;
-    const hasDown = floorNumber !== 0;
-    let element = createFloorElement(floorNumber, hasUp, hasDown);
-    sectionLiftFloor.appendChild(element);
-    floors.push(new Floor(floorNumber, [], element));
-    floorNumber--;
-  }
-}
 
 function createFloorElement(number, hasUp, hasDown) {
   let element;
@@ -139,9 +188,12 @@ function simulateLifts(num) {
     let element = createLiftElement(liftNumber);
     const lift = new Lift(liftNumber, 0, element);
     lifts.push(lift);
-    floors[floorNum].element.appendChild(element);
+    floors[floorNum].element.appendChild(lift.element);
+    floors[floorNum].lifts.push(lift);
     liftNumber++;
   }
+  console.log("initial state");
+  console.log(floors, lifts);
 }
 
 function createLiftElement(liftNumber) {
@@ -171,4 +223,50 @@ function createLiftElement(liftNumber) {
   lift.appendChild(rightDoor);
 
   return lift;
+}
+
+function simulateFloors(num) {
+  let floorNumber = num - 1;
+  while (floorNumber >= 0) {
+    const hasUp = floorNumber !== num - 1;
+    const hasDown = floorNumber !== 0;
+    let element = createFloorElement(floorNumber, hasUp, hasDown);
+    sectionLiftFloor.appendChild(element);
+
+    const floor = new Floor(floorNumber, [], element);
+    floors.push(floor);
+
+    // Attach event listeners
+    if (hasUp) {
+      element
+        .querySelector(".green-btn")
+        .addEventListener("click", () => floor.callLift());
+    }
+    if (hasDown) {
+      element
+        .querySelector(".yellow-btn")
+        .addEventListener("click", () => floor.callLift());
+    }
+
+    floorNumber--;
+  }
+}
+
+function findNearestIdleLift(requestedFloor) {
+  // Filter lifts that are not moving (travelling === false)
+  const idleLifts = lifts.filter((lift) => !lift.travelling);
+  console.log("number of idleLifts", idleLifts, idleLifts.lengths);
+  // Find the nearest lift based on distance to the requested floor
+  let nearestLift = null;
+  let minDistance = Number.MAX_VALUE;
+
+  idleLifts.forEach((lift) => {
+    const distance = Math.abs(requestedFloor - lift.atFloor);
+    if (distance < minDistance) {
+      nearestLift = lift;
+      minDistance = distance;
+    }
+  });
+
+  return nearestLift;
 }

@@ -4,6 +4,20 @@ const sectionForm = document.querySelector(".form");
 const sectionLiftFloor = document.querySelector("#lift-sim-section");
 const simBtn = document.querySelector("#simulate");
 
+const inputsValid = (floorInput, liftInput) => {
+  let invalidMessage = "";
+  let isValid = false;
+  if (floorInput <= 0 || liftInput <= 0) {
+    invalidMessage = "Please enter an integer > 1.";
+  } else if (floorInput == 1 && liftInput >= 0) {
+    invalidMessage = "No use having a lift for a single floor.";
+  } else {
+    isValid = true;
+  }
+
+  return [isValid, invalidMessage];
+};
+
 const simulate = () => {
   // get the inputs and create nodes and append to document
   const numOfFloors = floorInput.value;
@@ -14,6 +28,14 @@ const simulate = () => {
   //   floorNode.append(numOfFloors);
   //   lifts.appendChild(liftNode);
   //   floors.appendChild(floorNode);
+  const [areInputsValid, invalidMessage] = inputsValid(
+    floorInput.value,
+    liftInput.value
+  );
+  if (!areInputsValid) {
+    window.alert(invalidMessage);
+    return;
+  }
   // clean the input fields and show the output
   floorInput.value = "";
   liftInput.value = "";

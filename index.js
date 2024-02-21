@@ -60,6 +60,8 @@ function openCloseDoor(lift) {
   setTimeout(() => toggleDoors(lift), 2500);
 }
 
+let liftCallQueue = [];
+
 class Floor {
   constructor(number, lifts, element) {
     this.number = number;
@@ -68,10 +70,13 @@ class Floor {
   }
 
   callLift() {
-    // Find the nearest idle lift
+    // Try to find a nearest idle lift
     const nearestLift = findNearestIdleLift(this.number);
     if (nearestLift) {
       nearestLift.goToFloor(this.number);
+    } else {
+      // No idle lift found, add the call to the queue
+      liftCallQueue.push({ floorNumber: this.number });
     }
   }
 }
@@ -114,6 +119,7 @@ class Lift {
       setTimeout(() => this.engage(), 40);
       setTimeout(() => {
         this.travelling = false;
+        processLiftCallQueue();
       }, 5000);
       // add lift to the new floor
       const floorToReach = floors.find((floor) => floor.number === floorNumber);
@@ -291,4 +297,17 @@ function findNearestIdleLift(requestedFloor) {
   });
 
   return nearestLift;
+}
+
+function processLiftCallQueue() {
+  while (liftCallQueue.length > 0) {
+    const call = liftCallQueue[0];
+    const nearestLift = findNearestIdleLift(call.floorNumber);
+    if (nearestLift) {
+      nearestLift.goToFloor(call.floorNumber);
+      liftCallQueue.shift();
+    } else {
+      break;
+    }
+  }
 }
